@@ -13,8 +13,7 @@ end
 class Item
 	@fields
 	@hidden_fields
-	attr_reader :name
-	attr_reader :data
+	attr_reader :name, :data
 
 	def initialize(fields, first_field_val, hidden)
 		@fields = fields.map{|field| field.downcase}

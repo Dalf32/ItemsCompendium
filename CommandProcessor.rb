@@ -6,11 +6,13 @@ class CommandProcessor
 	attr_accessor :prompt_str
 	@command_set
 	@continue
+  @command_history
 
-	def initialize(prompt, default_command)
+	def initialize(prompt, default_command, history_size)
 		@command_set = Hash.new(default_command)
 		@prompt_str = prompt
 		@continue = true
+    @command_history = Array.new(history_size)
 	end
 
 	def loop(state)
@@ -42,7 +44,6 @@ class CommandProcessor
 			}
 		else
 			if @command_set.has_key?(params[0])
-				puts params[0]
 				puts @command_set[params[0]].get_help
 			else
 				puts 'Command not available.'
