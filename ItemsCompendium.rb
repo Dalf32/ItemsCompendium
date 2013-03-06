@@ -5,42 +5,42 @@ require_relative 'CommandProcessor'
 require_relative 'CompendiumCommands'
 
 class ItemsCompendium
-	attr_reader :dbHash, :lastQuery, :selectedItems
+	attr_reader :db_hash, :last_query, :selected_items
 
 	def initialize
-		@dbHash = Hash.new
-		@lastQuery = nil
-		@selectedItems = nil
+		@db_hash = Hash.new
+		@last_query = nil
+		@selected_items = nil
 	end
 
-	def add_db(dbName, db)
-		@dbHash[dbName] = db
+	def add_db(db_name, db)
+		@db_hash[db_name] = db
 	end
 
 	def count_items
-		itemCount = 0
+		item_count = 0
 
-		@dbHash.each_value{|db|
-			itemCount += db.numItems
+		@db_hash.each_value{|db|
+			item_count += db.numItems
 		}
 
-		itemCount
+		item_count
 	end
 
-	def search_all(searchTerms, field = nil)
+	def search_all(search_terms, field = nil)
 		results = nil
 		clear_selected
 
-		searchTerms.each{|value|
-			@dbHash.each_value{|db|
-				if(results == nil)
-					if(field != nil)
+		search_terms.each{|value|
+			@db_hash.each_value{|db|
+				if results == nil
+					if field != nil
 						results = db.query(field, value)
 					else
 						results = db.query(value)
 					end
 				else
-					if(field != nil)
+					if field != nil
 						results = results.merge(db.query(field, value))
 					else
 						results = results.merge(db.query(value))
@@ -49,98 +49,98 @@ class ItemsCompendium
 			}
 		}
 
-		@lastQuery = results
+		@last_query = results
 	end
 
-	def search_db(dbName, searchTerms, field = nil)
+	def search_db(db_name, search_terms, field = nil)
 		results = nil
 		clear_selected
 
-		if(@dbHash.has_key?(dbName))
-			searchTerms.each{|value|
-				if(results == nil)
-					if(field != nil)
-						results = @dbHash[dbName].query(field, value)
+		if @db_hash.has_key?(db_name)
+			search_terms.each{|value|
+				if results == nil
+					if field != nil
+						results = @db_hash[db_name].query(field, value)
 					else
-						results = @dbHash[dbName].query(value)
+						results = @db_hash[db_name].query(value)
 					end
 				else
-					if(field != nil)
-						results = results.merge(@dbHash[dbName].query(field, value))
+					if field != nil
+						results = results.merge(@db_hash[db_name].query(field, value))
 					else
-						results = results.merge(@dbHash[dbName].query(value))
+						results = results.merge(@db_hash[db_name].query(value))
 					end
 				end
 			}
 		end
 
-		@lastQuery = results
+		@last_query = results
 	end
 
-	def search_last_query(searchTerms, field = nil)
+	def search_last_query(search_terms, field = nil)
 		results = nil
 		clear_selected
 
-		searchTerms.each{|value|
-			if(results == nil)
-				if(field != nil)
-					results = @lastQuery.query(field, value)
+		search_terms.each{|value|
+			if results == nil
+				if field != nil
+					results = @last_query.query(field, value)
 				else
-					results = @lastQuery.query(value)
+					results = @last_query.query(value)
 				end
 			else
-				if(field != nil)
-					results = results.merge(@lastQuery.query(field, value))
+				if field != nil
+					results = results.merge(@last_query.query(field, value))
 				else
-					results = results.merge(@lastQuery.query(value))
+					results = results.merge(@last_query.query(value))
 				end
 			end
 		}
 
-		@lastQuery = results
+		@last_query = results
 	end
 
-	def select(selectCount = 1)
-		selectDB = nil
-		@selectedItems = Array.new
+	def select(select_count = 1)
+		select_db = nil
+		@selected_items = Array.new
 
-		if(lastQuery != nil)
-			selectDB = lastQuery
+		if last_query != nil
+			select_db = last_query
 		else
-			dbHash.each_value{|db|
-				selectDB = db.merge(selectDB)
+			db_hash.each_value{|db|
+				select_db = db.merge(select_db)
 			}
 		end
 		
-		selectCount.times{|count|
-			@selectedItems[count] = selectDB.select
+		select_count.times{|count|
+			@selected_items[count] = select_db.select
 		}
 	end
 
 	def clear_selected
-		@selectedItems = nil
+		@selected_items = nil
 	end
 
 	def clear_last_query
-		@lastQuery = nil
+		@last_query = nil
 	end
 end
 
-def parseDBfile(dbfile)
-	lineCount = 0
+def parseDBfile(db_file)
+	line_count = 0
 	db = nil
 
-	File.open(dbfile){|fileIO|
+	File.open(db_file){|fileIO|
 		fileIO.each_line{|line|
-			splitLine = line.strip.split(",")
+			split_line = line.strip.split(',')
 
-			if(lineCount == 0)
-				db = ItemDB.new(splitLine)
+			if line_count == 0
+				db = ItemDB.new(split_line)
 			else
-				db.addItem(splitLine)
+				db.addItem(split_line)
 			end
 
-			lineCount += 1
+			line_count += 1
 		}
 	}
 
@@ -151,27 +151,27 @@ def search(dbs, params)
 	results = nil
 	db = nil
 
-	if(dbs.kind_of?(ItemDB))
+	if dbs.kind_of?(ItemDB)
 		db = dbs
 	end
 
-	if(params.size >= 2)
-		if(params.size == 3)
-			dbName = params[0]
+	if params.size >= 2
+		if params.size == 3
+			db_name = params[0]
 			params = params[1..-1]
 
-			if(dbs.kind_of?(Hash) && dbs.has_key?(dbName))
-				db = dbs[dbName]
+			if dbs.kind_of?(Hash) && dbs.has_key?(db_name)
+				db = dbs[db_name]
 			end
 		end
 
 		field = params[0]
-		values = params[1].split(";")
+		values = params[1].split(';')
 
 		#Query the proper database(s) for matches
-		if(db != nil)
+		if db != nil
 			values.each{|value|
-				if(results == nil)
+				if results == nil
 					results = db.query(field, value)
 				else
 					results = results.merge(db.query(field, value))
@@ -180,7 +180,7 @@ def search(dbs, params)
 		else
 			values.each{|value|
 				dbs.each_value{|idb|
-					if(results == nil)
+					if results == nil
 						results = idb.query(field, value)
 					else
 						results = results.merge(idb.query(field, value))
@@ -188,13 +188,13 @@ def search(dbs, params)
 				}
 			}
 		end
-	elsif(params.size == 1)
-		values = params[0].split(";")
+	elsif params.size == 1
+		values = params[0].split(';')
 
 		#Query every database for matches
-		if(db != nil)
+		if db != nil
 			values.each{|value|
-				if(results == nil)
+				if results == nil
 					results = db.query(value)
 				else
 					results = results.merge(db.query(value))
@@ -203,7 +203,7 @@ def search(dbs, params)
 		else
 			values.each{|value|
 				dbs.each_value{|idb|
-					if(results == nil)
+					if results == nil
 						results = idb.query(value)
 					else
 						results = results.merge(idb.query(value))
@@ -217,89 +217,89 @@ def search(dbs, params)
 end
 
 def getHelp(cmd)
-	outStr = ""
+	out_str = ''
 
 	case cmd
-	when "quit", "close", "exit"
-		outStr<<"Terminates the ItemsCompendium."
-	when "search"
-		outStr<<"Search [Type] [Field] <Query>\n"
-		outStr<<"Searches indexed Items for matches to the given Query. The search is limited to the given Type and Field if provided.\n"
-		outStr<<"If Type is not provided then the entire Compendium is searched. If Field is not provided then the first field (usually a name) is searched. If Type is provided, then Field must also be provided."
-	when "refine"
-		outStr<<"Refine [Field] <Query>\n"
-		outStr<<"Refines the previous query results by searching it for matches to the given Query. The search is limited to the given Field if provided.\n"
-		outStr<<"If Field is not provided then the first field (usually a name) is searched."
-	when "dump"
-		outStr<<"Dump\n"
-		outStr<<"Prints out all Items indexed by the Compendium."
-	when "types"
-		outStr<<"Types\n"
-		outStr<<"Prints out a list of all the database types indexed by the Compendium."
-	when "fields"
-		outStr<<"Fields\n"
-		outStr<<"Prints out the fields used in each of the datases indexed by the Compendium."
-	when "select"
-		outStr<<"Select [N]\n"
-		outStr<<"Chooses N items at random from the last query results or from the entire Compendium if there are no previous results.\n"
-		outStr<<"If N is not provided, then only 1 item is selected."
-	when "save"
-		outStr<<"Save [Name]\n"
-		outStr<<"Saves previous query results to a file with the given Name or the current time (in milliseconds) if Name is not provided."
-	when "saveselected"
-		outStr<<"SaveSelected [Name]\n"
-		outStr<<"Saves previous selections to a file with the given Name or the current time (in milliseconds) if Name is not provided."
-	when "clear"
-		outStr<<"Clear\n"
-		outStr<<"Clears all previous query results and selections."
-	when "showextended"
-		outStr<<"ShowExtended\n"
-		outStr<<"Displays extended fields for previous selections or last query results if there are no previous selections."
-	when "help"
-		outStr<<"Help [Command]\n"
-		outStr<<"Prints the list of available commands or help for the given Command."
+	when 'quit', 'close', 'exit'
+		out_str<<'Terminates the ItemsCompendium.'
+	when 'search'
+		out_str<<"Search [Type] [Field] <Query>\n"
+		out_str<<"Searches indexed Items for matches to the given Query. The search is limited to the given Type and Field if provided.\n"
+		out_str<<'If Type is not provided then the entire Compendium is searched. If Field is not provided then the first field (usually a name) is searched. If Type is provided, then Field must also be provided.'
+	when 'refine'
+		out_str<<"Refine [Field] <Query>\n"
+		out_str<<"Refines the previous query results by searching it for matches to the given Query. The search is limited to the given Field if provided.\n"
+		out_str<<'If Field is not provided then the first field (usually a name) is searched.'
+	when 'dump'
+		out_str<<"Dump\n"
+		out_str<<'Prints out all Items indexed by the Compendium.'
+	when 'types'
+		out_str<<"Types\n"
+		out_str<<'Prints out a list of all the database types indexed by the Compendium.'
+	when 'fields'
+		out_str<<"Fields\n"
+		out_str<<'Prints out the fields used in each of the datases indexed by the Compendium.'
+	when 'select'
+		out_str<<"Select [N]\n"
+		out_str<<"Chooses N items at random from the last query results or from the entire Compendium if there are no previous results.\n"
+		out_str<<'If N is not provided, then only 1 item is selected.'
+	when 'save'
+		out_str<<"Save [Name]\n"
+		out_str<<'Saves previous query results to a file with the given Name or the current time (in milliseconds) if Name is not provided.'
+	when 'saveselected'
+		out_str<<"SaveSelected [Name]\n"
+		out_str<<'Saves previous selections to a file with the given Name or the current time (in milliseconds) if Name is not provided.'
+	when 'clear'
+		out_str<<"Clear\n"
+		out_str<<'Clears all previous query results and selections.'
+	when 'showextended'
+		out_str<<"ShowExtended\n"
+		out_str<<'Displays extended fields for previous selections or last query results if there are no previous selections.'
+	when 'help'
+		out_str<<"Help [Command]\n"
+		out_str<<'Prints the list of available commands or help for the given Command.'
 	else
-		outStr<<"Unrecognized command."
+		out_str<<'Unrecognized command.'
 	end
 
-	outStr
+	out_str
 end
 
 #MAIN
-queryPrompt = "\n:>"
-dbExt = ".db"
+query_prompt = "\n:>"
+db_ext = '.db'
 
-dbHash = Hash.new
-lastQuery = nil
-selectedItems = nil
-dbDir = "."
+db_hash = Hash.new
+last_query = nil
+selected_items = nil
+db_dir = '.'
 
-if(ARGV.length == 1)
-	dbDir = ARGV[0]
+if ARGV.length == 1
+	db_dir = ARGV[0]
 end
 
 compendium = ItemsCompendium.new
 
-Dir.new("#{Dir.pwd}/#{dbDir}").each{|filename|
-	if(filename.end_with?(dbExt))
-		dbHash[File.basename(filename, dbExt).downcase] = parseDBfile("#{dbDir}/#{filename}")
-		compendium.add_db(File.basename(filename, dbExt).downcase, parseDBfile("#{dbDir}/#{filename}"))
+Dir.new("#{Dir.pwd}/#{db_dir}").each{|filename|
+	if filename.end_with?(db_ext)
+		db_hash[File.basename(filename, db_ext).downcase] = parseDBfile("#{db_dir}/#{filename}")
+		compendium.add_db(File.basename(filename, db_ext).downcase, parseDBfile("#{db_dir}/#{filename}"))
 	end
 }
 
-comProc = CommandProcessor.new(queryPrompt, DefaultCommand.new)
-comProc.register_command(QuitCommand.new, "quit", "close", "exit")
-comProc.register_command(SearchCommand.new, "search")
-comProc.register_command(RefineCommand.new, "refine")
-comProc.register_command(DumpCommand.new, "dump")
-comProc.register_command(TypesCommand.new, "types")
-comProc.register_command(FieldsCommand.new, "fields")
-comProc.register_command(SelectCommand.new, "select")
-comProc.register_command(SaveCommand.new, "save")
-comProc.register_command(SaveSelectedCommand.new, "saveselected")
-comProc.register_command(ClearCommand.new, "clear")
-comProc.register_command(ShowExtendedCommand.new, "showextended")
-comProc.register_command(CountCommand.new, "count")
-comProc.register_command(HelpCommand.new(comProc), "help")
+com_proc = CommandProcessor.new(query_prompt, DefaultCommand.new)
+com_proc.register_command(QuitCommand.new, 'quit', 'close', 'exit')
+com_proc.register_command(SearchCommand.new, 'search')
+com_proc.register_command(RefineCommand.new, 'refine')
+com_proc.register_command(DumpCommand.new, 'dump')
+com_proc.register_command(TypesCommand.new, 'types')
+com_proc.register_command(FieldsCommand.new, 'fields')
+com_proc.register_command(SelectCommand.new, 'select')
+com_proc.register_command(SaveCommand.new, 'save')
+com_proc.register_command(SaveSelectedCommand.new, 'saveselected')
+com_proc.register_command(ClearCommand.new, 'clear')
+com_proc.register_command(ShowExtendedCommand.new, 'showextended')
+com_proc.register_command(CountCommand.new, 'count')
+com_proc.register_command(HelpCommand.new(com_proc), 'help')
 
-comProc.loop(compendium)
+com_proc.loop(compendium)

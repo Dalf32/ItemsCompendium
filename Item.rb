@@ -6,20 +6,20 @@ class String
 	end
 
 	def pretty
-		gsub("_", " ").titlecase
+		gsub('_', ' ').titlecase
 	end
 end
 
 class Item
-	:fields
-	:hiddenFields
+	@fields
+	@hidden_fields
 	attr_reader :name
 	attr_reader :data
 
-	def initialize(fields, firstFieldVal, hiddenFields)
+	def initialize(fields, first_field_val, hidden)
 		@fields = fields.map{|field| field.downcase}
-		@hiddenFields = hiddenFields.map{|hiddenField| hiddenField.downcase}
-		@name = firstFieldVal.downcase
+		@hidden_fields = hidden.map{|hiddenField| hiddenField.downcase}
+		@name = first_field_val.downcase
 		@data = Hash.new
 
 		@fields[1..-1].each{|field|
@@ -31,26 +31,26 @@ class Item
 		vals.each_index{|index|
 			value = vals[index].downcase.strip
 
-			if(!value.eql?(""))
-				if(value.include?(";"))
-					@data[@fields[index + 1]].concat(value.split(";"))
-				else
-					@data[@fields[index + 1]]<<value
-				end
-				
-				@data[@fields[index + 1]].uniq!
-			end
+      unless value.eql?('')
+        if value.include?(';')
+          @data[@fields[index + 1]].concat(value.split(';'))
+        else
+          @data[@fields[index + 1]]<<value
+        end
+
+        @data[@fields[index + 1]].uniq!
+      end
 		}
 	end
 
 	def matches?(field, value)
-		downField = field.downcase
-		downVal = value.downcase
+		down_field = field.downcase
+		down_val = value.downcase
 
-		if(@fields[0].eql?(downField))
-			@name.eql?(downVal) || @name.start_with?(downVal)
-		elsif(@data.has_key?(downField))
-			@data[downField].include?(downVal)
+		if @fields[0].eql?(down_field)
+			@name.eql?(down_val) || @name.start_with?(down_val)
+		elsif @data.has_key?(down_field)
+			@data[down_field].include?(down_val)
 		else
 			false
 		end
@@ -61,14 +61,14 @@ class Item
 	end
 
 	def to_s(extended = false)
-		outStr = "#{@fields[0].pretty}: #{@name.pretty}\n"
+		out_str = "#{@fields[0].pretty}: #{@name.pretty}\n"
 
 		@data.each_pair{|key, value|
-			if(!@hiddenFields.include?(key) || extended)
-				outStr<<"  #{key.pretty}: #{value.map{|val| val.pretty}}\n"
+			if !@hidden_fields.include?(key) || extended
+				out_str<<"  #{key.pretty}: #{value.map{|val| val.pretty}}\n"
 			end
 		}
 
-		outStr
+		out_str
 	end
 end

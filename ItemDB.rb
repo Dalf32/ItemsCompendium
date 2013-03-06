@@ -3,17 +3,17 @@
 require_relative 'Item'
 
 class ItemDB
-	:items
-	attr_reader :fields, :hiddenFields
+	@items
+	attr_reader :fields, :hidden_fields
 
 	def initialize(fields)
 		@fields = Array.new
-		@hiddenFields = Array.new
+		@hidden_fields = Array.new
 		@items = Hash.new
 
 		fields.each{|field|
-			if(field.start_with?("-"))
-				@hiddenFields<<field[1..-1]
+			if field.start_with?('-')
+				@hidden_fields<<field[1..-1]
 				@fields<<field[1..-1]
 			else
 				@fields<<field
@@ -24,39 +24,39 @@ class ItemDB
 	def addItem(vals)
 		key = vals[0]
 
-		if(!@items.has_key?(key))
-			@items[key] = Item.new(@fields, key, @hiddenFields)
-		end
+    unless @items.has_key?(key)
+      @items[key] = Item.new(@fields, key, @hidden_fields)
+    end
 
 		@items[key].addData(vals[1..-1])
 	end
 
 	def query(field = @fields[0], value)
-		queryResults = Array.new
+		query_results = Array.new
 
 		@items.each_value{|item|
-			if(item.matches?(field, value))
-				queryResults<<item
+			if item.matches?(field, value)
+				query_results<<item
 			end
 		}
 
-		buildSubsetDB(queryResults)
+		buildSubsetDB(query_results)
 	end
 
-	def merge(otherDB)
-		if(otherDB == nil)
+	def merge(other_db)
+		if other_db == nil
 			self
-		elsif(!@fields.eql?(otherDB.fields))
+		elsif !@fields.eql?(other_db.fields)
 			nil
 		else
-			buildSubsetDB(@items.values.concat(otherDB.items.values))
+			buildSubsetDB(@items.values.concat(other_db.items.values))
 		end
 	end
 
-	def select()
-		selectedIndex = Random.new.rand(numItems)
+	def select
+		selected_index = Random.new.rand(numItems)
 
-		@items.values[selectedIndex]
+		@items.values[selected_index]
 	end
 
 	def numItems
@@ -64,13 +64,13 @@ class ItemDB
 	end
 
 	def to_s(extended = false)
-		outStr = ""
+		out_str = ''
 
 		@items.each_value{|item|
-			outStr<<"#{item.to_s(extended)}\n"
+			out_str<<"#{item.to_s(extended)}\n"
 		}
 
-		outStr
+		out_str
 	end
 
 	protected
@@ -79,17 +79,17 @@ class ItemDB
 		@items
 	end
 
-	def buildSubsetDB(subsetItems)
-		if(subsetItems.empty?)
+	def buildSubsetDB(subset_items)
+		if subset_items.empty?
 			nil
 		else
-			subsetDB = ItemDB.new(@fields)
+			subset_db = ItemDB.new(@fields)
 
-			subsetItems.each{|item|
-				subsetDB.items[item.name] = item
+			subset_items.each{|item|
+				subset_db.items[item.name] = item
 			}
 
-			subsetDB
+			subset_db
 		end
 	end
 end

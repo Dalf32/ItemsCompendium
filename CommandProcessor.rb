@@ -1,23 +1,20 @@
 #CommandProcessor.rb
 
-require 'securerandom'
-
 class CommandProcessor
-	#This acts like an atom; the value doesn't matter, it just needs to be unique 
-	QUIT = SecureRandom.uuid
+	QUIT = :quit
 
-	attr_accessor :promptStr
-	:commandSet
-	:continue
+	attr_accessor :prompt_str
+	@command_set
+	@continue
 
-	def initialize(prompt, defaultCommand)
-		@commandSet = Hash.new(defaultCommand)
-		@promptStr = prompt
+	def initialize(prompt, default_command)
+		@command_set = Hash.new(default_command)
+		@prompt_str = prompt
 		@continue = true
 	end
 
 	def loop(state)
-		print @promptStr
+		print @prompt_str
 
 		$stdin.each_line{|input|
 			input = input.downcase.strip
@@ -25,37 +22,37 @@ class CommandProcessor
 			params = input.split[1..-1]
 
 			begin
-				if(@commandSet[command].execute(state, params) == QUIT)
+				if @command_set[command].execute(state, params) == QUIT
 					break
 				end
 			rescue => error
-				@commandSet[command].rescue_error(error)
+				@command_set[command].rescue_error(error)
 			end
 
-			print @promptStr
+			print @prompt_str
 		}
 	end
 
 	def show_help(params)
-		if(params.empty?)
-			puts "Available commands:"
+		if params.empty?
+			puts 'Available commands:'
 
-			@commandSet.each_key{|commandName|
+			@command_set.each_key{|commandName|
 				puts "  #{commandName}"
 			}
 		else
-			if(@commandSet.has_key?(params[0]))
+			if @command_set.has_key?(params[0])
 				puts params[0]
-				puts @commandSet[params[0]].get_help
+				puts @command_set[params[0]].get_help
 			else
-				puts "Command not available."
+				puts 'Command not available.'
 			end
 		end
 	end
 
-	def register_command(command, *commandNames)
-		commandNames.each{|commandName|
-			@commandSet[commandName.downcase] = command
+	def register_command(command, *command_names)
+		command_names.each{|commandName|
+			@command_set[commandName.downcase] = command
 		}
 	end
 end
