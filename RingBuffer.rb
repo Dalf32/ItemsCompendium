@@ -32,11 +32,3 @@ class RingBuffer < Array
     "#{out_str[0..-2]}]"
   end
 end
-
-#MAIN
-ring_buf = RingBuffer.new(5)
-
-12.times{|n|
-  ring_buf.push(n)
-  puts ring_buf.to_s
-}

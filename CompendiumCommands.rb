@@ -9,6 +9,8 @@ end
 class DefaultCommand
 	def execute(_state, _params)
 		puts 'Unrecognized command.'
+
+    CommandProcessor::EXCLUDE
 	end
 end
 
@@ -311,8 +313,42 @@ class CountCommand
 	end
 end
 
+class HistoryCommand
+  @command_proc
+
+  def initialize(com_proc)
+    @command_proc = com_proc
+  end
+
+  def execute(state, params)
+    com_history = @command_proc.command_history
+
+    if params.empty?
+      com_history.length.times{|command_index|
+        puts "#{command_index + 1}. #{com_history[command_index]}"
+      }
+    else
+      command_index = params[0].to_i
+
+      if (1..com_history.length).include?(command_index)
+        com_pair = com_history[command_index - 1]
+
+        @command_proc.execute_command(com_pair[0], com_pair[1], state)
+      else
+        puts 'Selected command number out of range.'
+      end
+    end
+
+    CommandProcessor::EXCLUDE
+  end
+
+  def get_help
+
+  end
+end
+
 class HelpCommand
-	:command_proc
+	@command_proc
 
 	def initialize(com_proc)
 		@command_proc = com_proc

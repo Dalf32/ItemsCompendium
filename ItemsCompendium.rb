@@ -180,6 +180,7 @@ com_proc.register_command(SaveSelectedCommand.new, 'saveselected')
 com_proc.register_command(ClearCommand.new, 'clear')
 com_proc.register_command(ShowExtendedCommand.new, 'showextended')
 com_proc.register_command(CountCommand.new, 'count')
+com_proc.register_command(HistoryCommand.new(com_proc), 'history')
 com_proc.register_command(HelpCommand.new(com_proc), 'help')
 
 com_proc.loop(compendium)
