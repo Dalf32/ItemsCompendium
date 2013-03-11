@@ -343,7 +343,10 @@ class HistoryCommand
   end
 
   def get_help
-
+    help_str = ''
+    help_str<<"History [I]\n"
+    help_str<<"Displays the last 10 commands executed.\n"
+    help_str<<'If I is provided, then the command with the given index is re-executed.'
   end
 end
 
