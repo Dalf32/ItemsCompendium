@@ -184,16 +184,13 @@ class SelectCommand
 		end
 
 		puts "Selecting #{select_count} from #{from_count}:"
-
-		state.selected_items.map{|item|
-			puts "#{item}\n"
-		}
+		state.print_selected
 	end
 
 	def get_help
 		help_str = ''
 		help_str<<"Select [N]\n"
-		help_str<<"Chooses N items at random from the last query results or from the entire Compendium if there are no previous results.\n"
+		help_str<<"Picks N items at random from the last query results or from the entire Compendium if there are no previous results.\n"
 		help_str<<'If N is not provided, then only 1 item is selected.'
 	end
 end
@@ -350,6 +347,44 @@ class HistoryCommand
   end
 end
 
+class ChooseCommand
+  include ErrorRescue
+
+  def execute(state, params)
+    if params.empty?
+      puts 'Must provide the index of an item.'
+      return
+    elsif state.last_query == nil
+      puts 'No previous query results to choose from.'
+      return
+    end
+
+    if params.length == 1
+      chosen_indices = params[0].split(';').map{|index| index.to_i}
+
+      state.choose(chosen_indices)
+    elsif params.length == 2
+      range_start = params[0].to_i
+      range_end = params[1].to_i
+
+      state.choose_range(range_start, range_end)
+    else
+      puts 'Invalid parameters.'
+      return
+    end
+
+    puts "Chose #{state.selected_items.length} items:\n"
+    state.print_selected
+  end
+
+  def get_help
+    help_str = ''
+    help_str<<"Choose <Query> [Range_End]\n"
+    help_str<<"Selects the items from the previous query results with the index (or indices) provided.\n"
+    help_str<<'If Range_End is provided, then Query is treated as Range_Start and all items with an index between Range_Start and Range_End in the previous query results are chosen.'
+  end
+end
+
 class HelpCommand
 	@command_proc
 
@@ -358,7 +393,21 @@ class HelpCommand
 	end
 
 	def execute(_state, params)
-		@command_proc.show_help(params)
+    commands = @command_proc.command_set
+
+    if params.empty?
+      puts 'Available commands:'
+
+      commands.each_key{|commandName|
+        puts "  #{commandName}"
+      }
+    else
+      if commands.has_key?(params[0])
+        puts commands[params[0]].get_help
+      else
+        puts 'Command not available.'
+      end
+    end
 	end
 
 	def get_help

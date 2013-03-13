@@ -115,7 +115,23 @@ class ItemsCompendium
 		select_count.times{|count|
 			@selected_items[count] = select_db.select
 		}
-	end
+  end
+
+  def choose(indices)
+    @selected_items = Array.new
+
+    indices.each{|index|
+      @selected_items<<@last_query[index.to_i]
+    }
+  end
+
+  def choose_range(range_start, range_end)
+    @selected_items = Array.new
+
+    if last_query != nil
+      @selected_items = @last_query[range_start..range_end]
+    end
+  end
 
 	def clear_selected
 		@selected_items = nil
@@ -123,7 +139,13 @@ class ItemsCompendium
 
 	def clear_last_query
 		@last_query = nil
-	end
+  end
+
+  def print_selected
+    @selected_items.map{|item|
+      puts "#{item}\n"
+    }
+  end
 end
 
 def parseDBfile(db_file)
@@ -181,6 +203,7 @@ com_proc.register_command(ClearCommand.new, 'clear')
 com_proc.register_command(ShowExtendedCommand.new, 'showextended')
 com_proc.register_command(CountCommand.new, 'count')
 com_proc.register_command(HistoryCommand.new(com_proc), 'history')
+com_proc.register_command(ChooseCommand.new, 'choose')
 com_proc.register_command(HelpCommand.new(com_proc), 'help')
 
 com_proc.loop(compendium)

@@ -31,6 +31,10 @@ class ItemDB
 		@items[key].addData(vals[1..-1])
 	end
 
+  def [](offset)
+    @items.values[offset]
+  end
+
 	def query(field = @fields[0], value)
 		query_results = Array.new
 
