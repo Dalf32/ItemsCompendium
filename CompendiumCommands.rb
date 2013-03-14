@@ -54,7 +54,7 @@ class SearchCommand
 		end
 
 		if state.last_query != nil
-			puts state.last_query
+			puts state.last_query.to_s(true)
 			puts "#{state.last_query.numItems} results."
 		else
 			puts 'No results.'
@@ -94,7 +94,7 @@ class RefineCommand
 
 		#Print the results of the query if successful
 		if state.last_query != nil
-			puts state.last_query
+			puts state.last_query.to_s(true)
 			puts "#{state.last_query.numItems} results."
 		else
 			puts 'No results.'
@@ -184,7 +184,7 @@ class SelectCommand
 		end
 
 		puts "Selecting #{select_count} from #{from_count}:"
-		state.print_selected
+		puts state.selected_to_s
 	end
 
 	def get_help
@@ -210,7 +210,7 @@ class SaveCommand
     end
 
 		File.open(outfile, 'w'){|fileIO|
-			fileIO<<state.last_query
+			fileIO<<state.last_query.to_s(false, true)
 		}
 	end
 
@@ -237,9 +237,7 @@ class SaveSelectedCommand
     end
 
 		File.open(outfile, 'w'){|fileIO|
-			state.selected_items.map{|item|
-				fileIO<<"#{item}\n"
-			}
+			fileIO<<state.selected_to_s(false, true)
 		}
 	end
 
@@ -264,13 +262,10 @@ end
 class ShowExtendedCommand
 	def execute(state, _params)
 		if state.selected_items != nil
-			state.selected_items.map{|item|
-				puts "#{item.to_s(true)}\n"
-			}
-
+			puts state.selected_to_s(false, true)
 			puts "#{state.selected_items.count} items."
 		elsif state.last_query != nil
-			puts state.last_query.to_s(true)
+			puts state.last_query.to_s(true, true)
 			puts "#{state.last_query.numItems} items."
 		else
 			puts 'No previous query results.'
@@ -360,12 +355,11 @@ class ChooseCommand
     end
 
     if params.length == 1
-      chosen_indices = params[0].split(';').map{|index| index.to_i}
-
+      chosen_indices = params[0].split(';').map{|index| index.to_i - 1}
       state.choose(chosen_indices)
     elsif params.length == 2
-      range_start = params[0].to_i
-      range_end = params[1].to_i
+      range_start = params[0].to_i - 1
+      range_end = params[1].to_i - 1
 
       state.choose_range(range_start, range_end)
     else
@@ -373,8 +367,12 @@ class ChooseCommand
       return
     end
 
-    puts "Chose #{state.selected_items.length} items:\n"
-    state.print_selected
+    if state.selected_items.empty?
+      puts 'No results.'
+    else
+      puts "Chose #{state.selected_items.length} items:\n"
+      puts state.selected_to_s
+    end
   end
 
   def get_help

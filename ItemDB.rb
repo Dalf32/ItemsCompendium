@@ -67,11 +67,22 @@ class ItemDB
 		@items.size
 	end
 
-	def to_s(extended = false)
+  def to_a
+    @items.values
+  end
+
+	def to_s(numbered = false, extended = false)
 		out_str = ''
+    num_str = ''
+    item_num = 1
 
 		@items.each_value{|item|
-			out_str<<"#{item.to_s(extended)}\n"
+      if numbered
+        num_str = "#{item_num}. "
+      end
+
+      out_str<<"#{num_str}#{item.to_s(extended)}\n"
+      item_num += 1
 		}
 
 		out_str

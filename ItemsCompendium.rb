@@ -111,22 +111,37 @@ class ItemsCompendium
 				select_db = db.merge(select_db)
 			}
 		end
-		
-		select_count.times{|count|
-			@selected_items[count] = select_db.select
-		}
+
+    if select_count >= select_db.numItems
+      @selected_items = select_db.to_a
+    else
+      select_count.times{|count|
+        selected = select_db.select
+
+        while @selected_items.include?(selected)
+          selected = select_db.select
+        end
+
+        @selected_items[count] = selected
+      }
+    end
   end
 
   def choose(indices)
     @selected_items = Array.new
 
     indices.each{|index|
-      @selected_items<<@last_query[index.to_i]
+      if index.to_i.between?(0, @last_query.numItems - 1)
+        @selected_items<<@last_query[index.to_i]
+      end
     }
   end
 
   def choose_range(range_start, range_end)
     @selected_items = Array.new
+
+    range_start = 0 unless range_start >= 0
+    range_end = @last_query.numItems unless range_end < @last_query.numItems
 
     if last_query != nil
       @selected_items = @last_query[range_start..range_end]
@@ -141,10 +156,21 @@ class ItemsCompendium
 		@last_query = nil
   end
 
-  def print_selected
+  def selected_to_s(numbered = false, extended = false)
+    out_str = ''
+    num_str = ''
+    item_num = 1
+
     @selected_items.map{|item|
-      puts "#{item}\n"
+      if numbered
+        num_str = "#{item_num}. "
+      end
+
+      out_str<<"#{num_str}#{item.to_s(extended)}\n"
+      item_num += 1
     }
+
+    out_str
   end
 end
 
