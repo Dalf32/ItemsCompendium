@@ -1,20 +1,37 @@
 #Item.rb
 
+##
+# Adds titlecase and pretty functions to string for easier formatting during print statements.
+##
 class String
+  ##
+  # Quick and dirty titlecase function.
+  ##
 	def titlecase
 		gsub(/\w+/){|word| word.capitalize}
 	end
 
+  ##
+  # Replaces underscores with spaces and titlecases the string.
+  ##
 	def pretty
 		gsub('_', ' ').titlecase
 	end
 end
 
+##
+# This class holds all the data for a single Item in the compendium and allows checking the Item for a match with some
+# search term.
+##
 class Item
 	@fields
 	@hidden_fields
 	attr_reader :name, :data
 
+  ##
+  # Creates a new Item with no data and the given fields. The first_field_val specifies the field to be used as the
+  # Item's name, and the hidden parameter enumerates the fields which should be hidden from printouts by default.
+  ##
 	def initialize(fields, first_field_val, hidden)
 		@fields = fields.map{|field| field.downcase}
 		@hidden_fields = hidden.map{|hiddenField| hiddenField.downcase}
@@ -26,6 +43,9 @@ class Item
 		}
 	end
 
+  ##
+  # Adds data to the Item by matching the passed values one-to-one with the field list.
+  ##
 	def addData(vals)
 		vals.each_index{|index|
 			value = vals[index].downcase.strip
@@ -42,12 +62,16 @@ class Item
 		}
 	end
 
+  ##
+  # Checks if this Item matches the given field-value pair, performing a more robust match if the given field is this
+  # Item's name field.
+  ##
 	def matches?(field, value)
 		down_field = field.downcase
 		down_val = value.downcase
 
 		if @fields[0].eql?(down_field)
-			@name.eql?(down_val) || @name.start_with?(down_val)
+			@name.eql?(down_val) || @name.start_with?(down_val) || @name.include?(down_val)
 		elsif @data.has_key?(down_field)
 			@data[down_field].include?(down_val)
 		else
@@ -55,10 +79,16 @@ class Item
 		end
 	end
 
+  ##
+  # Compares two Items by name, ignoring case.
+  ##
 	def eql?(item)
 		@name.eql?(item.downcase)
 	end
 
+  ##
+  # Returns a stringified version of this Item. The extended parameter turns the inclusion of hidden fields on or off.
+  ##
 	def to_s(extended = false)
 		out_str = "#{@fields[0].pretty}: #{@name.pretty}\n"
 

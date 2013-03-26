@@ -1,11 +1,17 @@
 #CompendiumCommands.rb
 
+##
+# Mixin to perform default error recovery for commands by simply printing the error.
+##
 module ErrorRescue
 	def rescue_error(error)
 		puts "#{error}\nError occurred, retry operation."
 	end
 end
 
+##
+# The default command used whenever the user inputs an unrecognized command. This is excluded from the command history.
+##
 class DefaultCommand
 	def execute(_state, _params)
 		puts 'Unrecognized command.'
@@ -14,6 +20,9 @@ class DefaultCommand
 	end
 end
 
+##
+# Exits the CommandProcessor loop.
+##
 class QuitCommand
 	def execute(_state, _params)
 		puts 'Goodbye.'
@@ -27,6 +36,9 @@ class QuitCommand
 	end
 end
 
+##
+# Searches the ItemsCompendium for matches to the input query.
+##
 class SearchCommand
 	include ErrorRescue
 
@@ -69,6 +81,9 @@ class SearchCommand
 	end
 end
 
+##
+# Refines the last search of the ItemsCompendium with a new query input by the user.
+##
 class RefineCommand
 	include ErrorRescue
 
@@ -109,6 +124,9 @@ class RefineCommand
 	end
 end
 
+##
+# Prints the entire set of indexed Items or the Items in one of the ItemDBs.
+##
 class DumpCommand
 	def execute(state, params)
 		item_total = 0
@@ -137,6 +155,9 @@ class DumpCommand
 	end
 end
 
+##
+# Prints out the list of ItemDBs as 'Types' of Items.
+##
 class TypesCommand
 	def execute(state, _params)
 		puts 'Item Types:'
@@ -151,6 +172,9 @@ class TypesCommand
 	end
 end
 
+##
+# Prints out the list of fields used by each Item Type.
+##
 class FieldsCommand
 	def execute(state, _params)
 		puts 'Fields by Type:'
@@ -165,6 +189,9 @@ class FieldsCommand
 	end
 end
 
+##
+# Randomly picks Items from the last set of query results or the entire Compendium.
+##
 class SelectCommand
 	include ErrorRescue
 
@@ -195,6 +222,9 @@ class SelectCommand
 	end
 end
 
+##
+# Saves the last set of query results to a file.
+##
 class SaveCommand
 	include ErrorRescue
 
@@ -221,6 +251,9 @@ class SaveCommand
 	end
 end
 
+##
+# Saves the subset of the last query results currently selected to a file.
+##
 class SaveSelectedCommand
 	include ErrorRescue
 	
@@ -248,6 +281,9 @@ class SaveSelectedCommand
 	end
 end
 
+##
+# Clears both the last query results and the specifically selected results.
+##
 class ClearCommand
 	def execute(state, _params)
 		state.clear_selected
@@ -259,6 +295,9 @@ class ClearCommand
 	end
 end
 
+##
+# Shows either the selected Items or the last query results with hidden fields shown.
+##
 class ShowExtendedCommand
 	def execute(state, _params)
 		if state.selected_items != nil
@@ -277,6 +316,10 @@ class ShowExtendedCommand
 	end
 end
 
+##
+# Counts the total number of Items in the Compendium as well as the Items in the set of previous query results and the
+# Items specifically selected by the user.
+##
 class CountCommand
 	def execute(state, _params)
 		count_str = 'Selected: '
@@ -305,6 +348,9 @@ class CountCommand
 	end
 end
 
+##
+# Prints the command history and allows the user to re-execute a previously entered command.
+##
 class HistoryCommand
   @command_proc
 
@@ -342,6 +388,9 @@ class HistoryCommand
   end
 end
 
+##
+# Picks Items from the set of last query results by index (not randomly).
+##
 class ChooseCommand
   include ErrorRescue
 
@@ -383,6 +432,9 @@ class ChooseCommand
   end
 end
 
+##
+# Displays the list of commands or displays help for a specific command.
+##
 class HelpCommand
 	@command_proc
 

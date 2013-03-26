@@ -4,19 +4,31 @@ require_relative 'ItemDB'
 require_relative 'CommandProcessor'
 require_relative 'CompendiumCommands'
 
+##
+# This class holds all of the data and provides the ability to search and access said data in a number of ways.
+##
 class ItemsCompendium
 	attr_reader :db_hash, :last_query, :selected_items
 
+  ##
+  # Creates a new, empty ItemsCompendium.
+  ##
 	def initialize
 		@db_hash = Hash.new
 		@last_query = nil
 		@selected_items = nil
 	end
 
+  ##
+  # Adds an ItemDB with the given name to the compendium, making it searchable.
+  ##
 	def add_db(db_name, db)
 		@db_hash[db_name] = db
 	end
 
+  ##
+  # Returns the total number of Items stored in this compendium.
+  ##
 	def count_items
 		item_count = 0
 
@@ -27,6 +39,10 @@ class ItemsCompendium
 		item_count
 	end
 
+  ##
+  # Searches the entire body of data for the provided search_terms. If the field parameter is provided, then the search
+  # is restricted to that field, otherwise the first field is searched.
+  ##
 	def search_all(search_terms, field = nil)
 		results = nil
 		clear_selected
@@ -52,6 +68,10 @@ class ItemsCompendium
 		@last_query = results
 	end
 
+  ##
+  # Searches just one of the indexed databases for the given search_terms. Otherwise this is functionally equivalent to
+  # the search_all function.
+  ##
 	def search_db(db_name, search_terms, field = nil)
 		results = nil
 		clear_selected
@@ -77,6 +97,10 @@ class ItemsCompendium
 		@last_query = results
 	end
 
+  ##
+  # Searches only the last set of query results, allowing the previous search to be refined. Otherwise this is
+  # functionally equivalent to the search_all function.
+  ##
 	def search_last_query(search_terms, field = nil)
 		results = nil
 		clear_selected
@@ -100,6 +124,11 @@ class ItemsCompendium
 		@last_query = results
 	end
 
+  ##
+  # Picks a random element select_count times and returns the resultant list. Items are selected from the last query
+  # results, if any, or from the entire data set if not. The select_count parameter is clamped to the range 0..SIZE,
+  # where SIZE is the number of items in either the last set of query results or in the entire data set.
+  ##
 	def select(select_count = 1)
 		select_db = nil
 		@selected_items = Array.new
@@ -127,6 +156,10 @@ class ItemsCompendium
     end
   end
 
+  ##
+  # Returns the Items at the given positions in the set of last query results. The indices parameter should be a list of
+  # positions (even if only 1 position is specified).
+  ##
   def choose(indices)
     @selected_items = Array.new
 
@@ -137,6 +170,10 @@ class ItemsCompendium
     }
   end
 
+  ##
+  # Returns the Items at the positions included within the given range. Both range_start and range_end are clamped to
+  # the bounds of the last set of query results.
+  ##
   def choose_range(range_start, range_end)
     @selected_items = Array.new
 
@@ -148,14 +185,24 @@ class ItemsCompendium
     end
   end
 
+  ##
+  # Clears the currently selected Items.
+  ##
 	def clear_selected
 		@selected_items = nil
 	end
 
+  ##
+  # Clears the last set of query results.
+  ##
 	def clear_last_query
 		@last_query = nil
   end
 
+  ##
+  # Returns the string representation of the current set of selected Items. The numbered parameter turns Item numbering
+  # in the returned string on or off, and the extended parameter turns hidden fields on or off in the returned string.
+  ##
   def selected_to_s(numbered = false, extended = false)
     out_str = ''
     num_str = ''
@@ -174,6 +221,9 @@ class ItemsCompendium
   end
 end
 
+##
+# Parses the given CSV file into an ItemDB object and returns it.
+##
 def parseDBfile(db_file)
 	line_count = 0
 	db = nil
@@ -208,6 +258,7 @@ end
 
 compendium = ItemsCompendium.new
 
+# Iterate through all of the CSV files in the directory
 Dir.new("#{Dir.pwd}/#{db_dir}").each{|filename|
 	if filename.end_with?(db_ext)
 		db_hash[File.basename(filename, db_ext).downcase] = parseDBfile("#{db_dir}/#{filename}")
@@ -215,6 +266,7 @@ Dir.new("#{Dir.pwd}/#{db_dir}").each{|filename|
 	end
 }
 
+# Add all of our Commands to the CommandProcessor
 com_proc = CommandProcessor.new(query_prompt, DefaultCommand.new)
 com_proc.register_command(QuitCommand.new, 'quit', 'close', 'exit')
 com_proc.register_command(SearchCommand.new, 'search')
