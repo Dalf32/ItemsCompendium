@@ -3,7 +3,7 @@
 require 'curses'
 
 require_relative 'RingBuffer'
-require_relative 'CursesWin'
+require_relative 'UserIO'
 
 ##
 # This class is a simple, generic way to add a command-based terminal prompt to an application. To use, register
@@ -29,12 +29,12 @@ class CommandProcessor
   # Creates a new CommandProcessor with only a default command which will be executed when the user inputs an invalid
   # command name.
   ##
-	def initialize(prompt, default_command, history_size = 10)
+	def initialize(prompt, default_command, io_method = UserIO::CURSES, history_size = 10)
 		@command_set = Hash.new(default_command)
 		@prompt_str = prompt
     @command_history = RingBuffer.new(history_size)
 
-    CursesWin.init
+    UserIO.use(io_method)
 	end
 
   ##
@@ -48,21 +48,21 @@ class CommandProcessor
 
     begin
       if new_prompt
-        CursesWin::print @prompt_str
+        UserIO::print @prompt_str
       end
 
       new_prompt = true
-      input = CursesWin.read_until(CursesWin::TAB, CursesWin::ENTER)
+      input = UserIO.read_until(UserIO::TAB, UserIO::ENTER)
       input_text<<input.text
 
-      if input.last_char == CursesWin::TAB
+      if input.last_char == UserIO::TAB
         #Tab completion
         completed = complete_command_name(input.text)
         input_text<<completed
-        CursesWin::print completed
+        UserIO::print completed
 
         new_prompt = false
-      elsif input.last_char == CursesWin::ENTER
+      elsif input.last_char == UserIO::ENTER
         #Normal operation
         command = input_text.downcase.split[0]
         params = input_text.split[1..-1]
