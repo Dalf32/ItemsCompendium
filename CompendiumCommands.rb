@@ -5,7 +5,7 @@
 ##
 module ErrorRescue
 	def rescue_error(error)
-		puts "#{error}\nError occurred, retry operation."
+		CursesWin::puts "#{error}\nError occurred, retry operation."
 	end
 end
 
@@ -14,10 +14,19 @@ end
 ##
 class DefaultCommand
 	def execute(_state, _params)
-		puts 'Unrecognized command.'
+		CursesWin::puts 'Unrecognized command.'
 
     CommandProcessor::EXCLUDE
 	end
+end
+
+##
+# Command used when the user inputs nothing
+##
+class EmptyCommand
+  def execute(_state, _params)
+    CommandProcessor::EXCLUDE
+  end
 end
 
 ##
@@ -25,7 +34,7 @@ end
 ##
 class QuitCommand
 	def execute(_state, _params)
-		puts 'Goodbye.'
+		CursesWin::puts 'Goodbye.'
 		CommandProcessor::QUIT
 	end
 
@@ -44,7 +53,7 @@ class SearchCommand
 
 	def execute(state, params)
 		if params.empty? || params.size > 3
-			puts 'Invalid query.'
+			CursesWin::puts 'Invalid query.'
 			return
 		end
 
@@ -66,10 +75,10 @@ class SearchCommand
 		end
 
 		if state.last_query != nil
-			puts state.last_query.to_s(true)
-			puts "#{state.last_query.numItems} results."
+			CursesWin::puts state.last_query.to_s(true)
+			CursesWin::puts "#{state.last_query.numItems} results."
 		else
-			puts 'No results.'
+			CursesWin::puts 'No results.'
 		end
 	end
 
@@ -89,10 +98,10 @@ class RefineCommand
 
 	def execute(state, params)
 		if state.last_query == nil
-			puts 'No previous query results.'
+			CursesWin::puts 'No previous query results.'
 			return
 		elsif params.empty? || params.size > 2
-			puts 'Invalid query.'
+			CursesWin::puts 'Invalid query.'
 			return
 		end
 
@@ -109,10 +118,10 @@ class RefineCommand
 
 		#Print the results of the query if successful
 		if state.last_query != nil
-			puts state.last_query.to_s(true)
-			puts "#{state.last_query.numItems} results."
+			CursesWin::puts state.last_query.to_s(true)
+      CursesWin::puts "#{state.last_query.numItems} results."
 		else
-			puts 'No results.'
+      CursesWin::puts 'No results.'
 		end
 	end
 
@@ -133,21 +142,21 @@ class DumpCommand
 
 		if params.empty?
 			state.db_hash.each_pair{|dbName, db|
-				puts "#{dbName.pretty}:"
-				puts db
+        CursesWin::puts "#{dbName.pretty}:"
+        CursesWin::puts db
 				
 				item_total += db.numItems
 			}
 		else
 			db = state.db_hash[params[0]]
 
-			puts "#{params[0]}:"
-			puts db
+      CursesWin::puts "#{params[0]}:"
+      CursesWin::puts db
 			
 			item_total = db.numItems
 		end
 
-		puts "#{item_total} items."
+    CursesWin::puts "#{item_total} items."
 	end
 
 	def get_help
@@ -160,10 +169,10 @@ end
 ##
 class TypesCommand
 	def execute(state, _params)
-		puts 'Item Types:'
+    CursesWin::puts 'Item Types:'
 
 		state.db_hash.each_pair{|dbName, db|
-			puts "  #{dbName.pretty}: #{db.numItems}"
+      CursesWin::puts "  #{dbName.pretty}: #{db.numItems}"
 		}
 	end
 
@@ -177,10 +186,10 @@ end
 ##
 class FieldsCommand
 	def execute(state, _params)
-		puts 'Fields by Type:'
+    CursesWin::puts 'Fields by Type:'
 
 		state.db_hash.each_pair{|dbName, db|
-			puts "  #{dbName.pretty}: #{db.fields}"
+      CursesWin::puts "  #{dbName.pretty}: #{db.fields}"
 		}
 	end
 
@@ -210,8 +219,8 @@ class SelectCommand
 			from_count = state.last_query.numItems
 		end
 
-		puts "Selecting #{select_count} from #{from_count}:"
-		puts state.selected_to_s
+    CursesWin::puts "Selecting #{select_count} from #{from_count}:"
+    CursesWin::puts state.selected_to_s
 	end
 
 	def get_help
@@ -230,7 +239,7 @@ class SaveCommand
 
 	def execute(state, params)
 		if state.last_query == nil
-			puts 'No previous query results.'
+      CursesWin::puts 'No previous query results.'
 		end
 
 		outfile = "Items-#{Time.now.to_i}.txt"
@@ -259,7 +268,7 @@ class SaveSelectedCommand
 	
 	def execute(state, params)
 		if state.selected_items == nil
-			puts 'No selected items.'
+      CursesWin::puts 'No selected items.'
 			return
 		end
 
@@ -301,13 +310,13 @@ end
 class ShowExtendedCommand
 	def execute(state, _params)
 		if state.selected_items != nil
-			puts state.selected_to_s(false, true)
-			puts "#{state.selected_items.count} items."
+      CursesWin::puts state.selected_to_s(false, true)
+      CursesWin::puts "#{state.selected_items.count} items."
 		elsif state.last_query != nil
-			puts state.last_query.to_s(true, true)
-			puts "#{state.last_query.numItems} items."
+      CursesWin::puts state.last_query.to_s(true, true)
+      CursesWin::puts "#{state.last_query.numItems} items."
 		else
-			puts 'No previous query results.'
+      CursesWin::puts 'No previous query results.'
 		end
 	end
 
@@ -340,7 +349,7 @@ class CountCommand
 
 		count_str<<"Total: #{state.count_items}"
 
-		puts count_str
+    CursesWin::puts count_str
 	end
 
 	def get_help
@@ -363,7 +372,7 @@ class HistoryCommand
 
     if params.empty?
       com_history.length.times{|command_index|
-        puts "#{command_index + 1}. #{com_history[command_index]}"
+        CursesWin::puts "#{command_index + 1}. #{com_history[command_index]}"
       }
     else
       command_index = params[0].to_i
@@ -373,7 +382,7 @@ class HistoryCommand
 
         @command_proc.execute_command(com_pair[0], com_pair[1], state)
       else
-        puts 'Selected command number out of range.'
+        CursesWin::puts 'Selected command number out of range.'
       end
     end
 
@@ -396,10 +405,10 @@ class ChooseCommand
 
   def execute(state, params)
     if params.empty?
-      puts 'Must provide the index of an item.'
+      CursesWin::puts 'Must provide the index of an item.'
       return
     elsif state.last_query == nil
-      puts 'No previous query results to choose from.'
+      CursesWin::puts 'No previous query results to choose from.'
       return
     end
 
@@ -412,15 +421,15 @@ class ChooseCommand
 
       state.choose_range(range_start, range_end)
     else
-      puts 'Invalid parameters.'
+      CursesWin::puts 'Invalid parameters.'
       return
     end
 
     if state.selected_items.empty?
-      puts 'No results.'
+      CursesWin::puts 'No results.'
     else
-      puts "Chose #{state.selected_items.length} items:\n"
-      puts state.selected_to_s
+      CursesWin::puts "Chose #{state.selected_items.length} items:\n"
+      CursesWin::puts state.selected_to_s
     end
   end
 
@@ -446,16 +455,16 @@ class HelpCommand
     commands = @command_proc.command_set
 
     if params.empty?
-      puts 'Available commands:'
+      CursesWin::puts 'Available commands:'
 
       commands.each_key{|commandName|
-        puts "  #{commandName}"
+        CursesWin::puts "  #{commandName}"
       }
     else
       if commands.has_key?(params[0])
-        puts commands[params[0]].get_help
+        CursesWin::puts commands[params[0]].get_help
       else
-        puts 'Command not available.'
+        CursesWin::puts 'Command not available.'
       end
     end
 	end

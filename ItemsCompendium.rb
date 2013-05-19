@@ -268,6 +268,7 @@ Dir.new("#{Dir.pwd}/#{db_dir}").each{|filename|
 
 # Add all of our Commands to the CommandProcessor
 com_proc = CommandProcessor.new(query_prompt, DefaultCommand.new)
+com_proc.register_command(EmptyCommand.new, '')
 com_proc.register_command(QuitCommand.new, 'quit', 'close', 'exit')
 com_proc.register_command(SearchCommand.new, 'search')
 com_proc.register_command(RefineCommand.new, 'refine')

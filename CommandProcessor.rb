@@ -1,6 +1,9 @@
 #CommandProcessor.rb
 
+require 'curses'
+
 require_relative 'RingBuffer'
+require_relative 'CursesWin'
 
 ##
 # This class is a simple, generic way to add a command-based terminal prompt to an application. To use, register
@@ -30,6 +33,8 @@ class CommandProcessor
 		@command_set = Hash.new(default_command)
 		@prompt_str = prompt
     @command_history = RingBuffer.new(history_size)
+
+    CursesWin.init
 	end
 
   ##
@@ -37,19 +42,39 @@ class CommandProcessor
   # The loop state is passed to the commands upon execution and should provide them with all they need to operate.
   ##
 	def loop(state)
-		print @prompt_str
+    new_prompt = true
+    result = nil
+    input_text = ''
 
-		$stdin.each_line{|input|
-			input = input.downcase.strip
-			command = input.split[0]
-			params = input.split[1..-1]
-
-      if execute_command(command, params, state) == QUIT
-			  break
+    begin
+      if new_prompt
+        CursesWin::print @prompt_str
       end
 
-      print @prompt_str
-		}
+      new_prompt = true
+      input = CursesWin.read_until(CursesWin::TAB, CursesWin::ENTER)
+      input_text<<input.text
+
+      if input.last_char == CursesWin::TAB
+        #Tab completion
+        completed = complete_command_name(input.text)
+        input_text<<completed
+        CursesWin::print completed
+
+        new_prompt = false
+      elsif input.last_char == CursesWin::ENTER
+        #Normal operation
+        command = input_text.downcase.split[0]
+        params = input_text.split[1..-1]
+        input_text = ''
+
+        if command == nil
+          command = ''
+        end
+
+        result = execute_command(command, params, state)
+      end
+    end while(result != QUIT)
   end
 
   ##
@@ -60,9 +85,9 @@ class CommandProcessor
     retval = nil
 
     begin
-      retval = @command_set[command].execute(state, params)
+      retval = @command_set[command.strip].execute(state, params)
     rescue => error
-      retval = @command_set[command].rescue_error(error)
+      retval = @command_set[command.strip].rescue_error(error)
     end
 
     @command_history.push([command, params]) unless retval == EXCLUDE
@@ -78,5 +103,20 @@ class CommandProcessor
 		command_names.each{|commandName|
 			@command_set[commandName.downcase] = command
 		}
+  end
+
+  private
+
+  def complete_command_name(input)
+    completed_name = ''
+
+    @command_set.each_key{|commandName|
+      if commandName.start_with?(input)
+        completed_name = commandName[input.length..-1]
+        break
+      end
+    }
+
+    completed_name
   end
 end
