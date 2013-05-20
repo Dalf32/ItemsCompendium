@@ -23,7 +23,7 @@ class ItemsCompendium
   # Adds an ItemDB with the given name to the compendium, making it searchable.
   ##
 	def add_db(db_name, db)
-		@db_hash[db_name] = db
+		@db_hash[db_name.downcase] = db
 	end
 
   ##
@@ -73,22 +73,23 @@ class ItemsCompendium
   # the search_all function.
   ##
 	def search_db(db_name, search_terms, field = nil)
+    down_db_name = db_name.downcase
 		results = nil
 		clear_selected
 
-		if @db_hash.has_key?(db_name)
+		if @db_hash.has_key?(down_db_name)
 			search_terms.each{|value|
 				if results == nil
 					if field != nil
-						results = @db_hash[db_name].query(field, value)
+						results = @db_hash[down_db_name].query(field, value)
 					else
-						results = @db_hash[db_name].query(value)
+						results = @db_hash[down_db_name].query(value)
 					end
 				else
 					if field != nil
-						results = results.merge(@db_hash[db_name].query(field, value))
+						results = results.merge(@db_hash[down_db_name].query(field, value))
 					else
-						results = results.merge(@db_hash[db_name].query(value))
+						results = results.merge(@db_hash[down_db_name].query(value))
 					end
 				end
 			}
@@ -204,8 +205,10 @@ class ItemsCompendium
   # indexed databases.
   ##
   def get_values(db_name, field)
-    if @db_hash.has_key?(db_name)
-      @db_hash[db_name].values(field)
+    down_db_name = db_name.downcase
+
+    if @db_hash.has_key?(down_db_name)
+      @db_hash[down_db_name].values(field)
     else
       nil
     end
