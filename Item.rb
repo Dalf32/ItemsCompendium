@@ -1,7 +1,7 @@
 #Item.rb
 
 ##
-# Adds titlecase and pretty functions to string for easier formatting during print statements.
+# Adds titlecase and pretty functions to String for easier formatting during print statements.
 ##
 class String
   ##
@@ -17,6 +17,27 @@ class String
 	def pretty
 		gsub('_', ' ').titlecase
 	end
+end
+
+##
+# Adds include_similar? function to Array for more robust searching.
+##
+class Array
+  ##
+  # Same as include? except returns true if the Array contains a value that
+  # either starts with or otherwise includes the key.
+  ##
+  def include_similar?(key)
+    retval = false
+
+    each{|value|
+      if value.start_with?(key) || value.include?(key)
+        retval = true
+      end
+    }
+
+    retval
+  end
 end
 
 ##
@@ -69,11 +90,17 @@ class Item
 	def matches?(field, value)
 		down_field = field.downcase
 		down_val = value.downcase
+    approx = false
+
+    if down_val.start_with?('~')
+      approx = true
+      down_val = down_val[1..-1]
+    end
 
 		if @fields[0].eql?(down_field)
 			@name.eql?(down_val) || @name.start_with?(down_val) || @name.include?(down_val)
 		elsif @data.has_key?(down_field)
-			@data[down_field].include?(down_val)
+			@data[down_field].include?(down_val) || approx ? @data[down_field].include_similar?(down_val) : false
 		else
 			false
 		end

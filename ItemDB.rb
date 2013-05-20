@@ -7,7 +7,6 @@ require_relative 'Item'
 # that have the same fields.
 ##
 class ItemDB
-	@items
 	attr_reader :fields, :hidden_fields
 
   ##
@@ -119,12 +118,7 @@ class ItemDB
 
 	protected
 
-  ##
-  # Provides access to another ItemDB's set of Items.
-  ##
-	def items
-		@items
-	end
+  attr_accessor :items
 
   ##
   # Builds a new ItemDB out of the given set of Items and returns it.
