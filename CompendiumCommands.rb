@@ -126,7 +126,7 @@ class RefineCommand
 	end
 
 	def get_help
-      help_str = ''
+    help_str = ''
 		help_str<<"Refine [Field] <Query>\n"
 		help_str<<"Refines the previous query results by searching it for matches to the given Query. The search is limited to the given Field if provided.\n"
 		help_str<<'If Field is not provided then the first field (usually a name) is searched.'
@@ -438,6 +438,36 @@ class ChooseCommand
     help_str<<"Choose <Query> [Range_End]\n"
     help_str<<"Selects the items from the previous query results with the index (or indices) provided.\n"
     help_str<<'If Range_End is provided, then Query is treated as Range_Start and all items with an index between Range_Start and Range_End in the previous query results are chosen.'
+  end
+end
+
+##
+# Lists all unique values for the given field and the given type.
+##
+class EnumerateCommand
+  include ErrorRescue
+
+  def execute(state, params)
+    if params.count < 2
+      UserIO::puts 'Must provide both a Type and Field for which values are to be enumerated.'
+    elsif params.count > 2
+      UserIO::puts 'Invalid parameters.'
+      return
+    end
+
+    values = state.get_values(*params)
+
+    unless values == nil || values.count == 0
+        UserIO::puts values.to_a.sort{|a, b| a <=> b}
+    else
+      UserIO::puts 'Invalid Type or Field provided.'
+    end
+  end
+
+  def get_help
+    help_str = ''
+    help_str<<"Enumerate <Type> <Field>\n"
+    help_str<<'Lists all values for the given Field within the given Type.'
   end
 end
 

@@ -200,6 +200,18 @@ class ItemsCompendium
   end
 
   ##
+  # Returns a list of all unique values for the given field in one of the
+  # indexed databases.
+  ##
+  def get_values(db_name, field)
+    if @db_hash.has_key?(db_name)
+      @db_hash[db_name].values(field)
+    else
+      nil
+    end
+  end
+
+  ##
   # Returns the string representation of the current set of selected Items. The numbered parameter turns Item numbering
   # in the returned string on or off, and the extended parameter turns hidden fields on or off in the returned string.
   ##
@@ -283,6 +295,7 @@ com_proc.register_command(ShowExtendedCommand.new, 'showextended')
 com_proc.register_command(CountCommand.new, 'count')
 com_proc.register_command(HistoryCommand.new(com_proc), 'history')
 com_proc.register_command(ChooseCommand.new, 'choose')
+com_proc.register_command(EnumerateCommand.new, 'enumerate')
 com_proc.register_command(HelpCommand.new(com_proc), 'help')
 
 com_proc.loop(compendium)

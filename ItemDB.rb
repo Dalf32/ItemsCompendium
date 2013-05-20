@@ -1,5 +1,7 @@
 #ItemDB.rb
 
+require 'set'
+
 require_relative 'Item'
 
 ##
@@ -42,10 +44,17 @@ class ItemDB
 		@items[key].addData(vals[1..-1])
 	end
 
+  ##
+  # Allows indexing of an ItemDB like an Array (read-only).
+  ##
   def [](offset)
     @items.values[offset]
   end
 
+  ##
+  # Returns a subset of this ItemDB containing only Items which match the given
+  # criteria for field (optional) and value.
+  ##
 	def query(field = @fields[0], value)
 		query_results = Array.new
 
@@ -80,6 +89,22 @@ class ItemDB
 
 		@items.values[selected_index]
 	end
+
+  ##
+  # Returns the set of unique values in this ItemDB for the given field as a
+  # list in no particular order.
+  ##
+  def values(field)
+    vals = Set.new
+
+    @items.each_value{|item|
+      item.data[field.downcase].each{|item_val|
+        vals<<item_val
+      }
+    }
+
+    vals
+  end
 
   ##
   # Returns the total number of Items indexed by this ItemDB.
