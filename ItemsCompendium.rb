@@ -1,5 +1,7 @@
 #ItemsCompendium.rb
 
+require 'optparse'
+
 require_relative 'ItemDB'
 require_relative 'CommandProcessor'
 require_relative 'CompendiumCommands'
@@ -236,53 +238,34 @@ class ItemsCompendium
   end
 end
 
-##
-# Parses the given CSV file into an ItemDB object and returns it.
-##
-def parseDBfile(db_file)
-	line_count = 0
-	db = nil
-
-	File.open(db_file){|fileIO|
-		fileIO.each_line{|line|
-			split_line = line.strip.split(',')
-
-			if line_count == 0
-				db = ItemDB.new(split_line)
-			else
-				db.addItem(split_line)
-			end
-
-			line_count += 1
-		}
-	}
-
-	db
-end
-
 #MAIN
 query_prompt = "\n:>"
 db_ext = '.db'
-
-db_hash = Hash.new
 db_dir = '.'
+io_method = UserIO::CURSES
 
-if ARGV.length == 1
-	db_dir = ARGV[0]
-end
+# Parse command line arguments
+OptionParser.new{|opt|
+  opt.on('-d', '--dirname=DIR', 'Specify the database directory'){|dir|
+    db_dir = dir
+  }
+
+  opt.on('-c', '--[no-]curses', "Don't use Curses for I/O"){|c|
+    io_method = c ? UserIO::CURSES : UserIO::STANDARD
+  }
+}.parse!
 
 compendium = ItemsCompendium.new
 
 # Iterate through all of the CSV files in the directory
 Dir.new("#{Dir.pwd}/#{db_dir}").each{|filename|
 	if filename.end_with?(db_ext)
-		db_hash[File.basename(filename, db_ext).downcase] = parseDBfile("#{db_dir}/#{filename}")
-		compendium.add_db(File.basename(filename, db_ext).downcase, parseDBfile("#{db_dir}/#{filename}"))
+		compendium.add_db(File.basename(filename, db_ext).downcase, ItemDB.parseDBfile("#{db_dir}/#{filename}"))
 	end
 }
 
 # Add all of our Commands to the CommandProcessor
-com_proc = CommandProcessor.new(query_prompt, DefaultCommand.new)
+com_proc = CommandProcessor.new(query_prompt, DefaultCommand.new, io_method)
 com_proc.register_command(EmptyCommand.new, '')
 com_proc.register_command(QuitCommand.new, 'quit', 'close', 'exit')
 com_proc.register_command(SearchCommand.new, 'search')

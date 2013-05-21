@@ -31,6 +31,30 @@ class ItemDB
 	end
 
   ##
+  # Parses the given CSV file into an ItemDB object and returns it.
+  ##
+  def self.parseDBfile(db_file)
+    line_count = 0
+    db = nil
+
+    File.open(db_file){|fileIO|
+      fileIO.each_line{|line|
+        split_line = line.strip.split(',')
+
+        if line_count == 0
+          db = ItemDB.new(split_line)
+        else
+          db.addItem(split_line)
+        end
+
+        line_count += 1
+      }
+    }
+
+    db
+  end
+
+  ##
   # Creates and adds a new Item with the given values iff an Item with the same value for the first field does not
   # already exist in this ItemDB.
   ##
