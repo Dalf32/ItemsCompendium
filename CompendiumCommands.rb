@@ -162,7 +162,8 @@ class DumpCommand
 	end
 
 	def get_help
-    'Prints out all Items indexed by the Compendium.'
+    help_str = "Dump [type]\n"
+    help_str<<'Prints out all Items indexed by the Compendium or all Items of the given Type if provided.'
 	end
 end
 
@@ -179,7 +180,8 @@ class TypesCommand
 	end
 
 	def get_help
-    'Prints out a list of all the database types indexed by the Compendium.'
+    help_str = "Types\n"
+    help_str<<'Prints out a list of all the database types indexed by the Compendium.'
 	end
 end
 
@@ -196,7 +198,8 @@ class FieldsCommand
 	end
 
 	def get_help
-    'Prints out the fields used in each of the datases indexed by the Compendium.'
+    help_str = "Fields\n"
+    help_str<<'Prints out the fields used in each of the datases indexed by the Compendium.'
 	end
 end
 
@@ -212,6 +215,9 @@ class SelectCommand
 
 		if params.empty?
 			state.select
+    elsif params[0] == '*'
+      select_count = 'all'
+      state.select(from_count)
 		else
 			select_count = params[0].to_i
 			state.select(select_count)
@@ -229,7 +235,7 @@ class SelectCommand
 		help_str = ''
 		help_str<<"Select [N]\n"
 		help_str<<"Picks N items at random from the last query results or from the entire Compendium if there are no previous results.\n"
-		help_str<<'If N is not provided, then only 1 item is selected.'
+		help_str<<'If N is not provided, then only 1 item is selected. If N is *, then every item is selected.'
 	end
 end
 
@@ -302,7 +308,8 @@ class ClearCommand
 	end
 
 	def get_help
-    'Clears all previous query results and selections.'
+    help_str = "Clear\n"
+    help_str<<'Clears all previous query results and selections.'
 	end
 end
 
@@ -323,7 +330,8 @@ class ShowExtendedCommand
 	end
 
 	def get_help
-    'Displays extended fields for previous selections or last query results if there are no previous selections.'
+    help_str = "ShowExtended\n"
+    help_str<<'Displays extended fields for previous selections or last query results if there are no previous selections.'
 	end
 end
 
@@ -355,7 +363,8 @@ class CountCommand
 	end
 
 	def get_help
-    'Displays the number of Items selected, in the current query, and the total indexed by the Compendium.'
+    help_str = "Count\n"
+    help_str<<'Displays the number of Items selected, in the current query, and the total indexed by the Compendium.'
 	end
 end
 
@@ -437,9 +446,9 @@ class ChooseCommand
 
   def get_help
     help_str = ''
-    help_str<<"Choose <Query> [Range_End]\n"
+    help_str<<"Choose <Query> [RangeEnd]\n"
     help_str<<"Selects the items from the previous query results with the index (or indices) provided.\n"
-    help_str<<'If Range_End is provided, then Query is treated as Range_Start and all items with an index between Range_Start and Range_End in the previous query results are chosen.'
+    help_str<<'If RangeEnd is provided, then Query is treated as RangeStart and all items with an index between RangeStart and RangeEnd in the previous query results are chosen.'
   end
 end
 
@@ -470,6 +479,27 @@ class EnumerateCommand
     help_str = ''
     help_str<<"Enumerate <Type> <Field>\n"
     help_str<<'Lists all values for the given Field within the given Type.'
+  end
+end
+
+class LoadCommand
+  def execute(state, params)
+    if params.empty?
+      UserIO::puts 'Must provide the name of a set to load.'
+      return
+    elsif params.count == 1
+      #TODO: Load file in here
+    else
+      UserIO::puts 'Invalid parameters.'
+      return
+    end
+
+    UserIO::puts ''
+  end
+
+  def get_help
+    help_str = "Load <Name>\n"
+    help_str<<''
   end
 end
 
