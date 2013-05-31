@@ -137,6 +137,8 @@ end
 # Prints the entire set of indexed Items or the Items in one of the ItemDBs.
 ##
 class DumpCommand
+  include ErrorRescue
+
 	def execute(state, params)
 		item_total = 0
 

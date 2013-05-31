@@ -22,6 +22,23 @@ class ItemsCompendium
 	end
 
   ##
+  # Parses all files in the given directory which have the given extension and
+  # builds a new ItemsCompendium holding each of them.
+  ##
+  def self.parse(db_dir, db_ext)
+    compendium = ItemsCompendium.new
+
+    # Iterate through all of the CSV files in the directory
+    Dir.new(db_dir).each{|filename|
+      if filename.end_with?(db_ext)
+        compendium.add_db(File.basename(filename, db_ext).downcase, ItemDB.parseDBfile("#{db_dir}/#{filename}"))
+      end
+    }
+
+    compendium
+  end
+
+  ##
   # Adds an ItemDB with the given name to the compendium, making it searchable.
   ##
 	def add_db(db_name, db)
@@ -255,14 +272,7 @@ OptionParser.new{|opt|
   }
 }.parse!
 
-compendium = ItemsCompendium.new
-
-# Iterate through all of the CSV files in the directory
-Dir.new("#{Dir.pwd}/#{db_dir}").each{|filename|
-	if filename.end_with?(db_ext)
-		compendium.add_db(File.basename(filename, db_ext).downcase, ItemDB.parseDBfile("#{db_dir}/#{filename}"))
-	end
-}
+compendium = ItemsCompendium.parse(db_dir, db_ext)
 
 # Add all of our Commands to the CommandProcessor
 com_proc = CommandProcessor.new(query_prompt, DefaultCommand.new, io_method)
