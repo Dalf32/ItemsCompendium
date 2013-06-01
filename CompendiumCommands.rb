@@ -40,7 +40,7 @@ class QuitCommand
 
 	def get_help
 		help_str = ''
-		help_str<<"Quit, Close, Exit\n"
+		help_str<<"Quit|Close|Exit\n"
 		help_str<<'Terminates the ItemsCompendium.'
 	end
 end
@@ -383,7 +383,9 @@ class HistoryCommand
 
     if params.empty?
       com_history.length.times{|command_index|
-        UserIO::puts "#{command_index + 1}. #{com_history[command_index]}"
+        unless com_history[command_index] == nil
+          UserIO::puts "#{command_index + 1}. #{com_history[command_index]}"
+        end
       }
     else
       command_index = params[0].to_i
@@ -398,6 +400,10 @@ class HistoryCommand
     end
 
     CommandProcessor::EXCLUDE
+  end
+
+  def rescue_error(_error)
+    UserIO::puts 'No command at the given index in the history.'
   end
 
   def get_help
@@ -468,10 +474,10 @@ class EnumerateCommand
 
     values = state.get_values(*params)
 
-    unless values == nil || values.count == 0
-        UserIO::puts values.to_a.sort{|a, b| a <=> b}
-    else
+    if values == nil || values.count == 0
       UserIO::puts 'Invalid Type or Field provided.'
+    else
+      UserIO::puts values.to_a.sort { |a, b| a <=> b }
     end
   end
 
@@ -482,24 +488,180 @@ class EnumerateCommand
   end
 end
 
-class LoadCommand
+##
+#
+##
+class CreateSetCommand
   def execute(state, params)
     if params.empty?
-      UserIO::puts 'Must provide the name of a set to load.'
+      UserIO::puts 'Must provide a set name.'
       return
     elsif params.count == 1
-      #TODO: Load file in here
+      if state.selected_items == nil
+        UserIO::puts 'No selected items.'
+        return
+      end
     else
       UserIO::puts 'Invalid parameters.'
       return
     end
 
-    UserIO::puts ''
+    outfile = "sets/#{params[0]}.set"
+
+    File.open(outfile, 'w+'){|fileIO|
+      state.selected_items.each{|item|
+        fileIO<<item.name<<"\n"
+      }
+    }
+
+    UserIO::puts "Set '#{params[0]}' created successfully."
+  end
+
+  def rescue_error(error)
+    UserIO::puts "Could not create set, the provided name may be invalid: #{error}"
   end
 
   def get_help
-    help_str = "Load <Name>\n"
-    help_str<<''
+    help_str = "CreateSet <Name>\n"
+    help_str<<"Creates a new set of Items with the given name and the current selection and saves it so that it may be loaded later.\n"
+    help_str<<'The default save location for all named sets is ./sets.'
+  end
+end
+
+##
+#
+##
+class LoadSetCommand
+  def execute(state, params)
+    if params.empty?
+      UserIO::puts 'Must provide the name of a set to load.'
+      return
+    elsif params.count > 1
+      UserIO::puts 'Invalid parameters.'
+      return
+    end
+
+    infile = "sets/#{params[0]}.set"
+    state.empty_selected
+
+    File.open(infile, 'r'){|fileIO|
+      fileIO.each_line{|line|
+        line.strip!
+
+        unless line == ''
+          results = state.search_all([line])
+
+          unless results.numItems == 0
+            state.selected_items<<results[0]
+          end
+        end
+      }
+    }
+
+    state.selected_items.uniq!
+
+    UserIO::puts "Set '#{params[0]}' loaded successfully."
+  end
+
+  def rescue_error(error)
+    UserIO::puts "Could not load set, there may be an issue with the set file: #{error}"
+  end
+
+  def get_help
+    help_str = "LoadSet <Name>\n"
+    help_str<<'Loads the Item set with the given name from its file such that all of its Items are in the selected set.'
+  end
+end
+
+##
+#
+##
+class AddToSetCommand
+  def execute(state, params)
+    if params.empty?
+      UserIO::puts 'Must provide the name of an existing set.'
+      return
+    elsif params.count == 1
+      if state.selected_items == nil
+        UserIO::puts 'No selected items.'
+        return
+      end
+    else
+      UserIO::puts 'Invalid parameters.'
+      return
+    end
+
+    outfile = "sets/#{params[0]}.set"
+
+    File.open(outfile, 'a'){|fileIO|
+      state.selected_items.each{|item|
+        fileIO<<item.name<<"\n"
+      }
+    }
+
+    UserIO::puts "#{state.selected_items.count} Items added to set '#{params[0]}'"
+  end
+
+  def rescue_error(error)
+    UserIO::puts "Could not add Items to the set, there may be an issue with the set file: #{error}"
+  end
+
+  def get_help
+    help_str = "AddToSet <Name>\n"
+    help_str<<'Adds the Items in the current selection to an existing set of the given name.'
+  end
+end
+
+class TrashSetCommand
+  def execute(state, params)
+    if params.empty?
+      UserIO::puts 'Must provide the name of an existing set.'
+      return
+    elsif params.count > 1
+      UserIO::puts 'Invalid parameters.'
+      return
+    end
+
+    delFile = "sets/#{params[0]}.set"
+
+    File.delete(delFile)
+
+    UserIO::puts "Set '#{params[0]}' successfully deleted."
+  end
+
+  def rescue_error(error)
+    UserIO::puts "Set could not be deleted: #{error}"
+  end
+
+  def get_help
+    help_str = "TrashSet <Name>\n"
+    help_str<<'Deletes the set with the given name.'
+  end
+end
+
+##
+#
+##
+class ListSetsCommand
+  def execute(_state, _params)
+    dir = 'sets'
+
+    UserIO::puts 'Named sets:'
+
+    Dir.new(dir).each{|file|
+      if(file.end_with?('.set'))
+        UserIO::puts "  #{file[0..-5]}"
+      end
+    }
+  end
+
+  def rescue_error(error)
+    UserIO::puts "The sets directory does not exist: #{error}"
+  end
+
+  def get_help
+    help_str = "ListSets\n"
+    help_str<<'Lists all named sets in the sets directory.'
   end
 end
 

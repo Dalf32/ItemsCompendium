@@ -72,7 +72,7 @@ class Item
   # Compares two Items by name, ignoring case.
   ##
 	def eql?(item)
-		@name.eql?(item.downcase)
+		@name.eql?(item.name.downcase)
 	end
 
   ##

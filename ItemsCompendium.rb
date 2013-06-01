@@ -64,7 +64,6 @@ class ItemsCompendium
   ##
 	def search_all(search_terms, field = nil)
 		results = nil
-		clear_selected
 
 		search_terms.each{|value|
 			@db_hash.each_value{|db|
@@ -213,6 +212,13 @@ class ItemsCompendium
 	end
 
   ##
+  # Resets the currently selected Items list such that it is empty.
+  ##
+  def empty_selected
+    @selected_items = Array.new
+  end
+
+  ##
   # Clears the last set of query results.
   ##
 	def clear_last_query
@@ -289,9 +295,14 @@ com_proc.register_command(SaveSelectedCommand.new, 'saveselected')
 com_proc.register_command(ClearCommand.new, 'clear')
 com_proc.register_command(ShowExtendedCommand.new, 'showextended')
 com_proc.register_command(CountCommand.new, 'count')
-com_proc.register_command(HistoryCommand.new(com_proc), 'history')
+com_proc.register_command(HistoryCommand.new(com_proc), 'history', '!')
 com_proc.register_command(ChooseCommand.new, 'choose')
 com_proc.register_command(EnumerateCommand.new, 'enumerate')
+com_proc.register_command(CreateSetCommand.new, 'createset')
+com_proc.register_command(LoadSetCommand.new, 'loadset')
+com_proc.register_command(AddToSetCommand.new, 'addtoset')
+com_proc.register_command(ListSetsCommand.new, 'listsets')
+com_proc.register_command(TrashSetCommand.new, 'trashset')
 com_proc.register_command(HelpCommand.new(com_proc), 'help')
 
 com_proc.loop(compendium)
