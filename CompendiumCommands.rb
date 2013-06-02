@@ -489,7 +489,8 @@ class EnumerateCommand
 end
 
 ##
-#
+# Creates a new Named Set with the current selection as its contents. The set is saved to disk so that it may be loaded
+# back in later.
 ##
 class CreateSetCommand
   def execute(state, params)
@@ -529,7 +530,8 @@ class CreateSetCommand
 end
 
 ##
-#
+# Loads a previously created Named Set from disk into the current selection. This replaces the current selection and
+# the last query.
 ##
 class LoadSetCommand
   def execute(state, params)
@@ -574,7 +576,8 @@ class LoadSetCommand
 end
 
 ##
-#
+# Adds the contents of the current selection to the given Named Set. This does not load the set into the current
+# selection.
 ##
 class AddToSetCommand
   def execute(state, params)
@@ -612,8 +615,11 @@ class AddToSetCommand
   end
 end
 
+##
+# Deletes the given Named Set from disk such that it cannot be loaded again.
+##
 class TrashSetCommand
-  def execute(state, params)
+  def execute(_state, params)
     if params.empty?
       UserIO::puts 'Must provide the name of an existing set.'
       return
@@ -622,9 +628,9 @@ class TrashSetCommand
       return
     end
 
-    delFile = "sets/#{params[0]}.set"
+    delfile = "sets/#{params[0]}.set"
 
-    File.delete(delFile)
+    File.delete(delfile)
 
     UserIO::puts "Set '#{params[0]}' successfully deleted."
   end
@@ -640,7 +646,7 @@ class TrashSetCommand
 end
 
 ##
-#
+# Lists all Named Sets currently available to be loaded.
 ##
 class ListSetsCommand
   def execute(_state, _params)
@@ -649,7 +655,7 @@ class ListSetsCommand
     UserIO::puts 'Named sets:'
 
     Dir.new(dir).each{|file|
-      if(file.end_with?('.set'))
+      if file.end_with?('.set')
         UserIO::puts "  #{file[0..-5]}"
       end
     }

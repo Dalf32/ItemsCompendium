@@ -38,4 +38,11 @@ class Array
 
     retval
   end
+
+  ##
+  # Removes brackets and double quotes from the standard to_s function.
+  ##
+  def pretty
+    to_s[1..-2].gsub('"', '')
+  end
 end

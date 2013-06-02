@@ -83,7 +83,7 @@ class Item
 
 		@data.each_pair{|key, value|
 			if !@hidden_fields.include?(key) || extended
-				out_str<<"  #{key.pretty}: #{value.map{|val| val.pretty}}\n"
+				out_str<<"  #{key.pretty}: #{value.map{|val| val.pretty}.pretty}\n"
 			end
 		}
 
