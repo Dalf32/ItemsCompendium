@@ -31,7 +31,7 @@ class ItemsCompendium
     # Iterate through all of the CSV files in the directory
     Dir.new(db_dir).each{|filename|
       if filename.end_with?(db_ext)
-        compendium.add_db(File.basename(filename, db_ext).downcase, ItemDB.parseDBfile("#{db_dir}/#{filename}"))
+        compendium.add_db(File.basename(filename, db_ext).downcase, ItemDB.parse_db_file("#{db_dir}/#{filename}"))
       end
     }
 
@@ -52,7 +52,7 @@ class ItemsCompendium
 		item_count = 0
 
 		@db_hash.each_value{|db|
-			item_count += db.numItems
+			item_count += db.num_items
 		}
 
 		item_count
@@ -160,7 +160,7 @@ class ItemsCompendium
 			}
 		end
 
-    if select_count >= select_db.numItems
+    if select_count >= select_db.num_items
       @selected_items = select_db.to_a
     else
       select_count.times{|count|
@@ -183,7 +183,7 @@ class ItemsCompendium
     @selected_items = Array.new
 
     indices.each{|index|
-      if index.to_i.between?(0, @last_query.numItems - 1)
+      if index.to_i.between?(0, @last_query.num_items - 1)
         @selected_items<<@last_query[index.to_i]
       end
     }
@@ -197,7 +197,7 @@ class ItemsCompendium
     @selected_items = Array.new
 
     range_start = 0 unless range_start >= 0
-    range_end = @last_query.numItems unless range_end < @last_query.numItems
+    range_end = @last_query.num_items unless range_end < @last_query.num_items
 
     if last_query != nil
       @selected_items = @last_query[range_start..range_end]

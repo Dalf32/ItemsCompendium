@@ -33,7 +33,7 @@ class ItemDB
   ##
   # Parses the given CSV file into an ItemDB object and returns it.
   ##
-  def self.parseDBfile(db_file)
+  def self.parse_db_file(db_file)
     line_count = 0
     db = nil
 
@@ -44,7 +44,7 @@ class ItemDB
         if line_count == 0
           db = ItemDB.new(split_line)
         else
-          db.addItem(split_line)
+          db.add_item(split_line)
         end
 
         line_count += 1
@@ -58,14 +58,14 @@ class ItemDB
   # Creates and adds a new Item with the given values iff an Item with the same value for the first field does not
   # already exist in this ItemDB.
   ##
-	def addItem(vals)
+	def add_item(vals)
 		key = vals[0]
 
     unless @items.has_key?(key)
       @items[key] = Item.new(@fields, key, @hidden_fields)
     end
 
-		@items[key].addData(vals[1..-1])
+		@items[key].add_data(vals[1..-1])
 	end
 
   ##
@@ -88,7 +88,7 @@ class ItemDB
 			end
 		}
 
-		buildSubsetDB(query_results)
+		build_subset_db(query_results)
 	end
 
   ##
@@ -101,7 +101,7 @@ class ItemDB
 		elsif !@fields.eql?(other_db.fields)
 			nil
 		else
-			buildSubsetDB(@items.values.concat(other_db.items.values))
+			build_subset_db(@items.values.concat(other_db.items.values))
 		end
 	end
 
@@ -109,7 +109,7 @@ class ItemDB
   # Picks a random Item from those stored in this ItemDB and returns it.
   ##
 	def select
-		selected_index = Random.new.rand(numItems)
+		selected_index = Random.new.rand(num_items)
 
 		@items.values[selected_index]
 	end
@@ -133,7 +133,7 @@ class ItemDB
   ##
   # Returns the total number of Items indexed by this ItemDB.
   ##
-	def numItems
+	def num_items
 		@items.size
 	end
 
@@ -172,7 +172,7 @@ class ItemDB
   ##
   # Builds a new ItemDB out of the given set of Items and returns it.
   ##
-	def buildSubsetDB(subset_items)
+	def build_subset_db(subset_items)
 		if subset_items.empty?
 			nil
 		else

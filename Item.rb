@@ -29,7 +29,7 @@ class Item
   ##
   # Adds data to the Item by matching the passed values one-to-one with the field list.
   ##
-	def addData(vals)
+	def add_data(vals)
 		vals.each_index{|index|
 			value = vals[index].downcase.strip
 

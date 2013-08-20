@@ -76,7 +76,7 @@ class SearchCommand
 
 		if state.last_query != nil
 			UserIO::puts state.last_query.to_s(true)
-			UserIO::puts "#{state.last_query.numItems} results."
+			UserIO::puts "#{state.last_query.num_items} results."
 		else
 			UserIO::puts 'No results.'
 		end
@@ -119,7 +119,7 @@ class RefineCommand
 		#Print the results of the query if successful
 		if state.last_query != nil
 			UserIO::puts state.last_query.to_s(true)
-      UserIO::puts "#{state.last_query.numItems} results."
+      UserIO::puts "#{state.last_query.num_items} results."
 		else
       UserIO::puts 'No results.'
 		end
@@ -147,7 +147,7 @@ class DumpCommand
         UserIO::puts "#{dbName.pretty}:"
         UserIO::puts db
 				
-				item_total += db.numItems
+				item_total += db.num_items
 			}
 		else
 			db = state.db_hash[params[0]]
@@ -155,7 +155,7 @@ class DumpCommand
       UserIO::puts "#{params[0]}:"
       UserIO::puts db
 			
-			item_total = db.numItems
+			item_total = db.num_items
 		end
 
     UserIO::puts "#{item_total} items."
@@ -175,7 +175,7 @@ class TypesCommand
     UserIO::puts 'Item Types:'
 
 		state.db_hash.each_pair{|dbName, db|
-      UserIO::puts "  #{dbName.pretty}: #{db.numItems}"
+      UserIO::puts "  #{dbName.pretty}: #{db.num_items}"
 		}
 	end
 
@@ -224,7 +224,7 @@ class SelectCommand
 		end
 
 		if state.last_query != nil
-			from_count = state.last_query.numItems
+			from_count = state.last_query.num_items
 		end
 
     UserIO::puts "Selecting #{select_count} from #{from_count}:"
@@ -323,7 +323,7 @@ class ShowExtendedCommand
       UserIO::puts "#{state.selected_items.count} items."
 		elsif state.last_query != nil
       UserIO::puts state.last_query.to_s(true, true)
-      UserIO::puts "#{state.last_query.numItems} items."
+      UserIO::puts "#{state.last_query.num_items} items."
 		else
       UserIO::puts 'No previous query results.'
 		end
@@ -352,7 +352,7 @@ class CountCommand
 		count_str<<'Last Query: '
 
 		if state.last_query != nil
-			count_str<<"#{state.last_query.numItems}\n"
+			count_str<<"#{state.last_query.num_items}\n"
 		else
 			count_str<<"0\n"
 		end
@@ -553,7 +553,7 @@ class LoadSetCommand
         unless line == ''
           results = state.search_all([line])
 
-          unless results.numItems == 0
+          unless results.num_items == 0
             state.selected_items<<results[0]
           end
         end
