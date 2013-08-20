@@ -2,8 +2,8 @@
 
 require 'curses'
 
-require_relative 'RingBuffer'
 require_relative 'UserIO'
+require_relative '../Utilities/RingBuffer'
 
 ##
 # This class is a simple, generic way to add a command-based terminal prompt to an application. To use, register

@@ -1,6 +1,6 @@
 #Item.rb
 
-require_relative 'Extensions'
+require_relative 'Utilities/Extensions'
 
 ##
 # This class holds all the data for a single Item in the compendium and allows checking the Item for a match with some

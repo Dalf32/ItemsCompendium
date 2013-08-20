@@ -3,8 +3,8 @@
 require 'optparse'
 
 require_relative 'ItemDB'
-require_relative 'CommandProcessor'
-require_relative 'CompendiumCommands'
+require_relative 'Console/CommandProcessor'
+require_relative 'Console/CompendiumCommands'
 
 ##
 # This class holds all of the data and provides the ability to search and access said data in a number of ways.
