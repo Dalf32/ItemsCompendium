@@ -1,18 +1,56 @@
 ItemsCompendium
 ===============
 
-This is a flexible command-line tool for easily searching items with arbitrary fields.
-At present, the application operates over data in a simple intermediary CSV format, where the fields to be used are the
-first row in the file and every subsequent row represents a new 'record'. Additionally, you may have several CSV files
-all loaded in by the ItemsCompendium which will be identified as separate 'Types', which allows you to partition your
-data so that you may search different Types individually if you wish. Fields may be marked as 'hidden' by prepending
-them with "-", which makes them initially hidden during searches; this is useful for fields with an unwieldy amount of content.
+This is a flexible command-line tool for searching through large numbers of items with arbitrary fields and data.
+At present, the application operates over data in a simple intermediary CSV format; sqlite support is in the pipeline.
+
+Usage: ItemsCompendium [options]
+    -d, --dirname=DIR                Specify the database directory
+    -c, --[no-]curses                Don't use Curses for I/O
+
+If your platform doesn't support curses for whatever reason it can be disabled by passing --no-curses as an argument. Note though, that doing so will also disable tab-completion.
 
 
-I personally use this to quickly search through Magic Items from the D&D 4.0 books.
-This amounts to just over 1800 Items, the details of which I parsed from the D&D Insider Character Builder's XML data
-file. Because of this, I unfortunately can't include any of these data files, but I will be adding some example files
-for reference, should anyone be interested in actually using this.
+Available commands:
+  
+  quit | close | exit
+  search
+  refine
+  dump
+  types
+  fields
+  select
+  save
+  saveselected
+  clear
+  showextended
+  count
+  history | !
+  choose
+  enumerate
+  createset
+  loadset
+  addtoset
+  listsets
+  trashset
+  help
 
-There is some code in here that I feel is flexible enough to be ripped out of here and used in a completely different
-application (CommandProcessor for instance), so hopefully there's something useful to be found here.
+
+Installation
+============
+No special steps needed, just download or clone the repo on any system with ruby installed.
+
+
+Data Format
+===========
+The program accepts any number of CSV files ending in .db and will parse all such files in the database directory (provided as an argument).
+Files are interpreted as follows:
+
+IdField,Field1,Field2,...,FieldN
+item1_idfield,item1_field1,item1_field2,...,item1_fieldN
+item2_idfield,item2_field1a,item2_field2a,...,item2_fieldNa
+item2_idfield,item2_field1b,item2_field2b,...,item2_fieldNb
+...
+
+Any entries sharing the same value for the Id Field are considered to be part of the same Item. Values from the separate entries are gathered into a list for each field.
+Entries should not contain any spaces; underscores should be used instead. They will be replaced with spaces when data is printed to the screen.
